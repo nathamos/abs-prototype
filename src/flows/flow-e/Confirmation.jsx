@@ -23,7 +23,7 @@ function attrLabel(key, value) {
 }
 
 export default function Confirmation() {
-  const { selectedRoom, roomAttrs, myServices, bookingContext } = useOutletContext()
+  const { selectedRoom, myServices, bookingContext } = useOutletContext()
   const navigate = useNavigate()
 
   const nights = bookingContext.nights
@@ -88,13 +88,12 @@ export default function Confirmation() {
           <div style={{ fontSize: 20, fontFamily: 'var(--font-display)', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 12 }}>
             {selectedRoom ? `${selectedRoom.name} at ${bookingContext.property}` : 'No room selected'}
           </div>
-          {roomAttrs && (
+          {selectedRoom && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {[
-                { icon: '🏢', label: 'Location', value: attrLabel('floor',    roomAttrs.floor) },
-                { icon: '🌇', label: 'View',     value: attrLabel('view',     roomAttrs.view) },
-                { icon: '🛏️', label: 'Bed',      value: attrLabel('bedding',  roomAttrs.bedding) },
-                { icon: '🚿', label: 'Bathroom', value: attrLabel('bathroom', roomAttrs.bathroom) },
+                { icon: '🌇', label: 'View',     value: attrLabel('view',     selectedRoom.attributes.view) },
+                { icon: '🛏️', label: 'Bed',      value: selectedRoom.attributes.bedding.map((b) => attrLabel('bedding', b)).join(' · ') },
+                { icon: '🚿', label: 'Bathroom', value: attrLabel('bathroom', selectedRoom.attributes.bathroom) },
               ].map((row) => (
                 <div key={row.label} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -275,7 +274,7 @@ export default function Confirmation() {
 
       <div className="flex gap-3">
         <button
-          onClick={() => navigate('/flow-e/trip')}
+          onClick={() => navigate('/flow-e/itinerary')}
           style={{
             flex: 1,
             background: 'transparent',
@@ -289,7 +288,7 @@ export default function Confirmation() {
           }}
           className="transition-opacity hover:opacity-70"
         >
-          ← Back to trip
+          ← Edit itinerary
         </button>
         <button
           onClick={() => navigate('/flow-e')}

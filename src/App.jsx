@@ -16,13 +16,9 @@ import FlowCServices from './flows/flow-c/Services'
 import FlowCConfirmation from './flows/flow-c/Confirmation'
 
 import FlowDIndex from './flows/flow-d/FlowDIndex'
-import FlowDChat from './flows/flow-d/Chat'
-import FlowDRecommendation from './flows/flow-d/Recommendation'
-import FlowDConfirmation from './flows/flow-d/Confirmation'
 
 import FlowEIndex from './flows/flow-e/FlowEIndex'
 import FlowERooms from './flows/flow-e/Rooms'
-import FlowETrip from './flows/flow-e/Trip'
 import FlowEItinerary from './flows/flow-e/Itinerary'
 import FlowEConfirmation from './flows/flow-e/Confirmation'
 
@@ -66,16 +62,10 @@ export default function App() {
           <Route path="confirmation" element={<FlowCConfirmation />} />
         </Route>
 
-        <Route path="/flow-d" element={<FlowDIndex />}>
-          <Route index element={<Navigate to="chat" replace />} />
-          <Route path="chat" element={<FlowDChat />} />
-          <Route path="recommendation" element={<FlowDRecommendation />} />
-          <Route path="confirmation" element={<FlowDConfirmation />} />
-        </Route>
+        <Route path="/flow-d" element={<FlowDIndex />} />
 
         <Route path="/flow-e" element={<FlowEIndex />}>
-          <Route index element={<Navigate to="trip" replace />} />
-          <Route path="trip" element={<FlowETrip />} />
+          <Route index element={<Navigate to="rooms" replace />} />
           <Route path="rooms" element={<FlowERooms />} />
           <Route path="itinerary" element={<FlowEItinerary />} />
           <Route path="confirmation" element={<FlowEConfirmation />} />

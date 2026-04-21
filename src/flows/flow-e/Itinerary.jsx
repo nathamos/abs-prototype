@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useOutletContext, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { serviceCategories } from '../../data/services'
+import StepHeader from '../../components/shared/StepHeader'
 
 function buildServiceMap() {
   const map = {}
@@ -403,23 +404,12 @@ export default function Itinerary() {
 
   return (
     <div style={{ paddingBottom: 100 }}>
-      {/* Back */}
-      <button
-        onClick={() => navigate('/flow-e/trip')}
-        style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, color: 'var(--color-text-tertiary)', padding: '0 0 20px', display: 'block' }}
-      >
-        ← Back to trip
-      </button>
-
-      {/* Title */}
-      <div style={{ marginBottom: 24 }}>
-        <h2 style={{ fontSize: 26, fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)', marginBottom: 4 }}>
-          My Itinerary
-        </h2>
-        <p style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
-          {bookingContext.property} · {nights} nights
-        </p>
-      </div>
+      <StepHeader
+        step={2}
+        totalSteps={3}
+        title="Build your itinerary"
+        subtitle="Add activities and services to your stay, with specific times."
+      />
 
       {/* Standard Inclusions band */}
       <div
@@ -530,7 +520,7 @@ export default function Itinerary() {
       {/* Done */}
       <div style={{ marginTop: 8 }}>
         <button
-          onClick={() => navigate('/flow-e/trip')}
+          onClick={() => navigate('/flow-e/confirmation')}
           style={{
             width: '100%',
             background: 'var(--color-text-primary)',
@@ -544,7 +534,7 @@ export default function Itinerary() {
           }}
           className="transition-opacity hover:opacity-90"
         >
-          Done — back to trip
+          Review your trip →
         </button>
       </div>
 

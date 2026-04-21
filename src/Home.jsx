@@ -1,36 +1,12 @@
 import { Link } from 'react-router-dom'
 
 const flows = [
-  {
-    path: '/flow-a',
-    label: 'Flow A — Filter & Narrow',
-    description: 'Room-first. Filter a room list by attributes; ranked results.',
-  },
-  {
-    path: '/flow-b',
-    label: 'Flow B — Build Your Room (unpriced)',
-    description: 'Attribute-first. Compose a room from preferences; no prices shown.',
-  },
-  {
-    path: '/flow-b-priced',
-    label: 'Flow B — Build Your Room (priced)',
-    description: 'Same as Flow B with live SGD price deltas per attribute.',
-  },
-  {
-    path: '/flow-c',
-    label: 'Flow C — Room First',
-    description: 'Pick a room, personalise in-card, select a bundle.',
-  },
-  {
-    path: '/flow-d',
-    label: 'Flow D — Conversational',
-    description: 'Answer 5 questions; receive a curated recommendation.',
-  },
-  {
-    path: '/flow-e',
-    label: 'Flow E — My Trip',
-    description: 'Pick a room, then build a chronological itinerary of services around your stay.',
-  },
+  { path: '/flow-a',       label: 'Flow A' },
+  { path: '/flow-b',       label: 'Flow B' },
+  { path: '/flow-b-priced', label: 'Flow B (priced)' },
+  { path: '/flow-c',       label: 'Flow C' },
+  { path: '/flow-e',       label: 'Flow D' },
+  { path: '/flow-d',       label: 'Flow E' },
 ]
 
 export default function Home() {
@@ -58,17 +34,14 @@ export default function Home() {
             <Link
               key={flow.path}
               to={flow.path}
-              className="block px-6 py-5 rounded-2xl border transition-colors hover:border-[var(--color-teal)]"
+              className="block px-6 py-4 rounded-2xl border transition-colors hover:border-[var(--color-teal)]"
               style={{
                 background: 'var(--color-surface)',
                 borderColor: 'var(--color-border)',
               }}
             >
-              <p className="text-base font-semibold mb-0.5" style={{ color: 'var(--color-text-primary)' }}>
+              <p className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                 {flow.label}
-              </p>
-              <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                {flow.description}
               </p>
             </Link>
           ))}

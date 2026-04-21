@@ -1,161 +1,243 @@
-import { useState } from 'react'
+import { Fragment } from 'react'
 import { useOutletContext, useNavigate } from 'react-router-dom'
 import { rooms } from '../../data/rooms'
+import { attributes } from '../../data/attributes'
+import StepHeader from '../../components/shared/StepHeader'
 
-function deriveRoomAttrs(room) {
-  return {
-    floor: room.attributes.floor,
-    pillows: room.attributes.pillows,
+const NIGHTS = 3
+
+const COMPARE_ROOMS = rooms.filter((r) => r.id !== 'accessible-standard')
+
+const ROWS = [
+  { id: 'bedding',        label: 'Bed type' },
+  { id: 'occupancy',      label: 'Guests' },
+  { id: 'size',           label: 'Room size' },
+  { id: 'floor',          label: 'Floor' },
+  { id: 'view',           label: 'View' },
+  { id: 'balcony',        label: 'Balcony' },
+  { id: 'bathroom',       label: 'Bathroom' },
+  { id: 'livingArea',     label: 'Living area' },
+  { id: 'kitchen',        label: 'Kitchen' },
+  { id: 'laundry',        label: 'In-room laundry' },
+  { id: 'facilityAccess', label: 'Facilities' },
+]
+
+function getCellValues(room, attrId) {
+  if (attrId === 'size') return [{ label: `${room.size} m²` }]
+
+  const roomVal = room.attributes[attrId]
+  const attr = attributes.find((a) => a.id === attrId)
+  if (!attr) return null
+
+  if (attr.type === 'multiselect') {
+    const vals = Array.isArray(roomVal) ? roomVal : [roomVal]
+    return vals
+      .map((v) => {
+        const opt = attr.options.find((o) => o.value === v)
+        return opt ? { label: opt.label } : null
+      })
+      .filter(Boolean)
   }
+
+  if (attr.type === 'toggle') {
+    if (!roomVal) return null
+    const opt = attr.options.find((o) => o.value === true)
+    return opt ? [{ label: opt.label }] : null
+  }
+
+  const opt = attr.options.find((o) => o.value === roomVal)
+  return opt ? [{ label: opt.label }] : null
+}
+
+function Chip({ label }) {
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: '3px 9px',
+        borderRadius: 'var(--radius-full)',
+        background: 'var(--color-surface-alt)',
+        border: '1px solid var(--color-border)',
+        fontSize: 11,
+        fontWeight: 500,
+        color: 'var(--color-text-primary)',
+        lineHeight: 1.5,
+      }}
+    >
+      {label}
+    </span>
+  )
 }
 
 export default function Rooms() {
-  const { bookingContext, setters } = useOutletContext()
+  const { setters } = useOutletContext()
   const navigate = useNavigate()
-  const [selectedId, setSelectedId] = useState(null)
 
   function handleSelect(room) {
     setters.setSelectedRoom(room)
-    setters.setRoomAttrs(deriveRoomAttrs(room))
-    setSelectedId(room.id)
-    setTimeout(() => navigate('/flow-e/trip'), 320)
+    navigate('/flow-e/itinerary')
   }
 
-  const nights = bookingContext.nights
-  const checkIn = new Date(bookingContext.checkIn)
-  const checkOut = new Date(bookingContext.checkOut)
-  const checkInLabel = checkIn.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-  const checkOutLabel = checkOut.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-
   return (
-    <div style={{ paddingBottom: 80 }}>
-      <button
-        onClick={() => navigate('/flow-e/trip')}
-        style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, color: 'var(--color-text-tertiary)', padding: '0 0 16px', display: 'block' }}
-      >
-        ← Back to trip
-      </button>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 26, fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)', marginBottom: 4 }}>
-          Choose your room
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
-          Select a room, then return to your trip to build your itinerary.
-        </p>
-      </div>
+    <div style={{ paddingBottom: 40 }}>
+      <StepHeader
+        step={1}
+        totalSteps={3}
+        title="Compare rooms"
+        subtitle="Select the room tier that's right for your stay."
+      />
 
-      {/* Booking context pills */}
-      <div className="flex gap-3 mb-6" style={{ flexWrap: 'wrap' }}>
-        {[
-          { label: 'CHECK-IN', value: checkInLabel },
-          { label: 'CHECK-OUT', value: checkOutLabel },
-          { label: 'GUESTS', value: `${bookingContext.guests} adults` },
-        ].map((pill) => (
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '130px repeat(4, 1fr)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          overflow: 'hidden',
+          background: 'var(--color-surface)',
+        }}
+      >
+        {/* ── Header row: images + names ── */}
+        <div style={{ background: 'var(--color-surface)', padding: '12px' }} />
+
+        {COMPARE_ROOMS.map((room) => (
           <div
-            key={pill.label}
-            style={{
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
-              padding: '8px 14px',
-              background: 'var(--color-surface)',
-              minWidth: 100,
-            }}
+            key={room.id}
+            style={{ borderLeft: '1px solid var(--color-border)', background: 'var(--color-surface)' }}
           >
-            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', marginBottom: 2 }}>
-              {pill.label}
+            <div style={{ height: 110, overflow: 'hidden' }}>
+              <img
+                src={room.image}
+                alt={room.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
             </div>
-            <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)' }}>
-              {pill.value}
+            <div style={{ padding: '10px 12px 12px' }}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 13,
+                  fontWeight: 400,
+                  color: 'var(--color-text-primary)',
+                  marginBottom: 3,
+                }}
+              >
+                {room.name}
+              </p>
+              {room.badge && (
+                <span
+                  style={{
+                    display: 'inline-block',
+                    fontSize: 10,
+                    fontWeight: 600,
+                    color: 'var(--color-text-tertiary)',
+                    background: 'var(--color-surface-alt)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '2px 7px',
+                  }}
+                >
+                  {room.badge}
+                </span>
+              )}
             </div>
           </div>
         ))}
-      </div>
 
-      {/* Room list */}
-      <div className="flex flex-col" style={{ gap: 12 }}>
-        {rooms.map((room) => {
-          const isSelected = selectedId === room.id
-          const isDimmed = selectedId && selectedId !== room.id
-          const roomTotal = room.basePricePerNight * nights
-
+        {/* ── Attribute rows ── */}
+        {ROWS.map((row, rowIndex) => {
+          const rowBg = rowIndex % 2 === 0 ? 'var(--color-bg)' : 'var(--color-surface)'
           return (
-            <div
-              key={room.id}
-              style={{
-                borderRadius: 'var(--radius-lg)',
-                border: isSelected ? '2px solid var(--color-teal)' : '1px solid var(--color-border)',
-                background: 'var(--color-surface)',
-                overflow: 'hidden',
-                opacity: isDimmed ? 0.5 : 1,
-                transition: 'opacity 0.25s ease, border 0.15s ease',
-              }}
-            >
-              {/* Room image */}
-              <div style={{ position: 'relative' }}>
-                <img
-                  src={room.image}
-                  alt={room.name}
-                  style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }}
-                />
-                {room.badge && (
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: 10,
-                      left: 10,
-                      background: 'var(--color-surface)',
-                      color: 'var(--color-text-secondary)',
-                      fontSize: 11,
-                      fontWeight: 600,
-                      padding: '4px 10px',
-                      borderRadius: 'var(--radius-full)',
-                      border: '1px solid var(--color-border)',
-                    }}
-                  >
-                    {room.badge}
-                  </span>
-                )}
+            <Fragment key={row.id}>
+              <div
+                style={{
+                  padding: '10px 12px',
+                  background: rowBg,
+                  borderTop: '1px solid var(--color-border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                  {row.label}
+                </span>
               </div>
 
-              {/* Info row */}
-              <div className="flex items-center justify-between" style={{ padding: '16px 20px' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 18, fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)', marginBottom: 3 }}>
-                    {room.name}
-                  </div>
-                  <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
-                    {room.tagline}
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 ml-4 flex-shrink-0">
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                      SGD {room.basePricePerNight}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>per night</div>
-                  </div>
-                  <button
-                    onClick={() => handleSelect(room)}
+              {COMPARE_ROOMS.map((room) => {
+                const values = getCellValues(room, row.id)
+                return (
+                  <div
+                    key={room.id}
                     style={{
-                      background: isSelected ? 'var(--color-teal)' : 'var(--color-text-primary)',
-                      color: '#fff',
-                      fontSize: 13,
-                      fontWeight: 600,
-                      padding: '9px 16px',
-                      borderRadius: 'var(--radius-md)',
-                      border: 'none',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      transition: 'background 0.15s ease',
+                      padding: '10px 12px',
+                      background: rowBg,
+                      borderTop: '1px solid var(--color-border)',
+                      borderLeft: '1px solid var(--color-border)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: 4,
+                      minHeight: 44,
                     }}
                   >
-                    {isSelected ? 'Selected ✓' : 'Select →'}
-                  </button>
-                </div>
-              </div>
-            </div>
+                    {values ? (
+                      values.map((v, i) => <Chip key={i} label={v.label} />)
+                    ) : (
+                      <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>—</span>
+                    )}
+                  </div>
+                )
+              })}
+            </Fragment>
           )
         })}
+
+        {/* ── Footer: price + CTA ── */}
+        <div
+          style={{
+            padding: '16px 12px',
+            background: 'var(--color-surface)',
+            borderTop: '1px solid var(--color-border)',
+          }}
+        />
+
+        {COMPARE_ROOMS.map((room) => (
+          <div
+            key={room.id}
+            style={{
+              padding: '16px 12px',
+              background: 'var(--color-surface)',
+              borderTop: '1px solid var(--color-border)',
+              borderLeft: '1px solid var(--color-border)',
+            }}
+          >
+            <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 1 }}>
+              SGD {room.basePricePerNight}
+              <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--color-text-secondary)' }}>/night</span>
+            </p>
+            <p style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginBottom: 12 }}>
+              SGD {room.basePricePerNight * NIGHTS} total
+            </p>
+            <button
+              onClick={() => handleSelect(room)}
+              className="transition-opacity hover:opacity-90"
+              style={{
+                width: '100%',
+                padding: '11px',
+                background: 'var(--color-text-primary)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Select →
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   )
