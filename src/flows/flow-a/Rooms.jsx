@@ -382,7 +382,7 @@ export default function Rooms() {
                   <GroupLabel>In-room laundry</GroupLabel>
                   <div className="flex flex-wrap gap-2">
                     <AttributePill
-                      label="Daily laundry"
+                      label="In-room washer & dryer"
                       selected={amenityFilters.laundry !== null}
                       onClick={() => setAmenityFilters((f) => ({ ...f, laundry: f.laundry !== null ? null : true }))}
                     />
@@ -399,7 +399,7 @@ export default function Rooms() {
           style={dropdownBtnStyle(accessibilityFilter)}
           title="Accessible rooms only"
         >
-          Accessibility
+          ♿
         </button>
       </div>
 

@@ -34,6 +34,26 @@ export default function Rooms() {
   const activeConflict = useMemo(() => getActiveConflictFn(conflicts, selectedAttributes), [selectedAttributes])
   const roomTotal = matchedRoom.basePricePerNight * NIGHTS
 
+  const attrTotalPerNight = useMemo(() => {
+    const displayedIds = sectionGroups.flatMap((g) => g.ids)
+    let total = 0
+    for (const attr of attributes) {
+      if (!displayedIds.includes(attr.id)) continue
+      const val = selectedAttributes[attr.id]
+      if (val === undefined) continue
+      if (Array.isArray(val)) {
+        for (const v of val) {
+          const opt = attr.options.find((o) => o.value === v)
+          if (opt?.priceDelta) total += opt.priceDelta
+        }
+      } else {
+        const opt = attr.options.find((o) => o.value === val)
+        if (opt?.priceDelta) total += opt.priceDelta
+      }
+    }
+    return total
+  }, [selectedAttributes])
+
   function handlePillClick(attrId, value) {
     if (attrId === 'bedding') {
       setSelectedAttributes((prev) => {
@@ -184,7 +204,7 @@ export default function Rooms() {
                   transition: 'all 0.15s ease',
                 }}
               >
-                ♿ Accessible Room
+                ♿
               </button>
             </div>
           </div>
@@ -284,22 +304,42 @@ export default function Rooms() {
               </div>
             )}
 
-            {/* Priced: simple room total */}
+            {/* Priced: room base + attribute upgrades */}
             {priced && (
               <div className="mt-4">
-                <div
-                  style={{
-                    height: '1px',
-                    background: 'var(--color-border)',
-                    margin: '4px 0 10px',
-                  }}
-                />
-                <div className="flex justify-between text-sm font-semibold">
-                  <span style={{ color: 'var(--color-text-primary)' }}>
-                    Room total ({NIGHTS} nights)
-                  </span>
-                  <span style={{ color: 'var(--color-text-primary)' }}>SGD {roomTotal}</span>
-                </div>
+                <div style={{ height: '1px', background: 'var(--color-border)', margin: '4px 0 10px' }} />
+                {attrTotalPerNight > 0 ? (
+                  <>
+                    <div className="flex justify-between text-sm mb-1.5">
+                      <span style={{ color: 'var(--color-text-secondary)' }}>
+                        Base room · {NIGHTS} nights
+                      </span>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>SGD {roomTotal}</span>
+                    </div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span style={{ color: 'var(--color-text-secondary)' }}>
+                        Room upgrades · {NIGHTS} nights
+                      </span>
+                      <span style={{ color: 'var(--color-teal)', fontWeight: 600 }}>
+                        +SGD {attrTotalPerNight * NIGHTS}
+                      </span>
+                    </div>
+                    <div style={{ height: '1px', background: 'var(--color-border)', margin: '4px 0 8px' }} />
+                    <div className="flex justify-between text-sm font-semibold">
+                      <span style={{ color: 'var(--color-text-primary)' }}>Room total</span>
+                      <span style={{ color: 'var(--color-text-primary)' }}>
+                        SGD {(matchedRoom.basePricePerNight + attrTotalPerNight) * NIGHTS}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between text-sm font-semibold">
+                    <span style={{ color: 'var(--color-text-primary)' }}>
+                      Room total ({NIGHTS} nights)
+                    </span>
+                    <span style={{ color: 'var(--color-text-primary)' }}>SGD {roomTotal}</span>
+                  </div>
+                )}
               </div>
             )}
 

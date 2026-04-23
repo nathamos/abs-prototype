@@ -125,7 +125,7 @@ export const attributes = [
     type: 'toggle',
     options: [
       { value: false, label: 'No laundry',            emoji: '🚫', priceDelta: 0 },
-      { value: true,  label: 'Daily laundry service',  emoji: '🧺', priceDelta: 28 },
+      { value: true,  label: 'In-room washer & dryer',  emoji: '🧺', priceDelta: 28 },
     ],
   },
 

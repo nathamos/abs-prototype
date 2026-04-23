@@ -148,7 +148,7 @@ export default function Rooms() {
             ...(attrs.balcony    ? ['Private balcony']    : []),
             ...(attrs.livingArea ? ['Separate lounge']    : []),
             ...(attrs.kitchen    ? ['Kitchenette']        : []),
-            ...(attrs.laundry    ? ['In-room laundry']    : []),
+            ...(attrs.laundry    ? ['In-room washer & dryer'] : []),
           ]
 
           return (

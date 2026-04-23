@@ -19,7 +19,7 @@ const ROWS = [
   { id: 'livingArea',     label: 'Living area' },
   { id: 'kitchen',        label: 'Kitchen' },
   { id: 'laundry',        label: 'In-room laundry' },
-  { id: 'facilityAccess', label: 'Facilities' },
+  { id: 'facilityAccess', label: 'Facilities', override: [{ label: 'Pool + Gym access' }] },
 ]
 
 function getCellValues(room, attrId) {
@@ -165,7 +165,7 @@ export default function Rooms() {
               </div>
 
               {COMPARE_ROOMS.map((room) => {
-                const values = getCellValues(room, row.id)
+                const values = row.override ?? getCellValues(room, row.id)
                 return (
                   <div
                     key={room.id}

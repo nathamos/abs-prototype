@@ -1,12 +1,90 @@
 import { useState } from 'react'
 import { useOutletContext, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { serviceCategories } from '../../data/services'
 import StepHeader from '../../components/shared/StepHeader'
+
+// Curated timed-event services for the itinerary flow.
+// Every item here represents a bookable event with a clear start time.
+const FLOW_E_CATEGORIES = [
+  {
+    id: 'food-drink',
+    label: 'Food & drink',
+    emoji: '🍽️',
+    items: [
+      { id: 'breakfast-in-bed', name: 'Breakfast in bed', description: 'Delivered to your room at a time of your choice.', emoji: '☕', price: 22 },
+      { id: 'in-room-chef', name: 'In-room chef dinner', description: 'A private chef cooks a three-course dinner for two in your room.', emoji: '👨‍🍳', price: 220 },
+    ],
+  },
+  {
+    id: 'housekeeping',
+    label: 'Housekeeping',
+    emoji: '🛎️',
+    items: [
+      { id: 'turndown', name: 'Turndown service', description: 'Evening room preparation at your chosen time.', emoji: '🌙', price: 18 },
+      { id: 'express-laundry', name: 'Express laundry pickup', description: 'Laundry collected and returned same day.', emoji: '👜', price: 28 },
+    ],
+  },
+  {
+    id: 'wellness',
+    label: 'Wellness & leisure',
+    emoji: '🧘',
+    items: [
+      { id: 'personal-training', name: 'Personal training — 1 hr', description: '60-minute session with a certified trainer at the gym.', emoji: '🏋️', price: 75 },
+      { id: 'spa-treatment', name: 'Spa treatment — 60 min', description: 'Massage, facial, or body wrap — booked to a specific time.', emoji: '🐯', price: 95 },
+    ],
+  },
+  {
+    id: 'welcome-arrival',
+    label: 'Welcome & arrival',
+    emoji: '💐',
+    items: [
+      { id: 'welcome-amenity', name: 'Welcome amenity', description: 'Seasonal fruit and cold drinks ready in your room on arrival.', emoji: '🍓', price: 18 },
+      { id: 'bottle-wine', name: 'Bottle of wine', description: 'A selected bottle delivered to your room.', emoji: '🍷', price: 45 },
+      { id: 'occasion-setup', name: 'Occasion setup', description: 'Flowers, balloons, and personalised message — set up before you arrive.', emoji: '🎉', price: 68 },
+    ],
+  },
+  {
+    id: 'experiences',
+    label: 'Experiences & local',
+    emoji: '🚲',
+    items: [
+      { id: 'bike-hire', name: 'Bike hire — 1 day', description: 'Two bikes, ready at your chosen start time.', emoji: '🚴', price: 30 },
+      { id: 'cultural-tour', name: 'Cultural walking tour — 2 hrs', description: 'Guided tour of Chinatown and the civic district.', emoji: '🗺️', price: 55 },
+      { id: 'cooking-class', name: 'Hawker cooking class — 3 hrs', description: 'Cook two Singaporean dishes with a local chef.', emoji: '🍜', price: 85 },
+    ],
+  },
+  {
+    id: 'connectivity',
+    label: 'Connectivity & workspace',
+    emoji: '💼',
+    items: [
+      { id: 'desk-setup', name: 'Ergonomic desk setup', description: 'External monitor, keyboard, and mouse — delivered to your room.', emoji: '🖥️', price: 35 },
+      { id: 'meeting-room', name: 'Meeting room — half day', description: 'Private meeting room for up to 4 with AV and refreshments.', emoji: '📋', price: 120 },
+    ],
+  },
+  {
+    id: 'family',
+    label: 'Family & accessibility',
+    emoji: '👶',
+    items: [
+      { id: 'cot', name: 'Travel cot setup', description: 'Cot with fresh linen, set up in your room at a specific time.', emoji: '🍼', price: 20 },
+      { id: 'extra-bed', name: 'Extra rollaway bed', description: 'Delivered and set up at your preferred time.', emoji: '🛏️', price: 35 },
+      { id: 'baby-kit', name: 'Baby amenity kit delivery', description: 'Bottle warmer, bath products, and changing mat.', emoji: '🧸', price: 15 },
+    ],
+  },
+  {
+    id: 'personalised',
+    label: 'Personalised service',
+    emoji: '🤵',
+    items: [
+      { id: 'airport-transfer', name: 'Airport transfer', description: 'Private car to or from Changi Airport — set a specific pickup time.', emoji: '🚗', price: 55 },
+    ],
+  },
+]
 
 function buildServiceMap() {
   const map = {}
-  serviceCategories.forEach((cat) => {
+  FLOW_E_CATEGORIES.forEach((cat) => {
     cat.items.forEach((item) => { map[item.id] = item })
   })
   return map
@@ -110,10 +188,10 @@ function ServiceSheet({ dayLabel, onAdd, onClose }) {
               </div>
 
               <div style={{ overflowY: 'auto', flex: 1 }}>
-                {serviceCategories.map((cat) => {
+                {FLOW_E_CATEGORIES.map((cat) => {
                   const isOpen = openCat === cat.id
                   // Filter standard inclusions from the add sheet
-                  const items = cat.items.filter((item) => !STANDARD_IDS.has(item.id))
+                  const items = cat.items
                   if (items.length === 0) return null
                   return (
                     <div key={cat.id} style={{ borderTop: '1px solid var(--color-border)' }}>
@@ -392,15 +470,11 @@ export default function Itinerary() {
     }
   })
 
-  // Collect distinct standard inclusions for the band
-  const standardInclusions = []
-  serviceCategories.forEach((cat) => {
-    cat.items.forEach((item) => {
-      if (STANDARD_IDS.has(item.id) && !standardInclusions.find((i) => i.id === item.id)) {
-        standardInclusions.push(item)
-      }
-    })
-  })
+  const standardInclusions = [
+    { id: 'daily-breakfast',    emoji: '🥐', name: 'Daily breakfast' },
+    { id: 'daily-housekeeping', emoji: '🛎️', name: 'Daily room service' },
+    { id: 'gym-access',         emoji: '💪', name: 'Gym access' },
+  ]
 
   return (
     <div style={{ paddingBottom: 100 }}>

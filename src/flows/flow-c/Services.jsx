@@ -9,6 +9,13 @@ const standardItems = allItems.filter((i) => i.standardInclusion)
 
 const bundles = [
   {
+    id: 'room-only',
+    name: 'Room only',
+    description: 'The Straits experience — daily breakfast, housekeeping, and gym access included.',
+    serviceIds: [],
+    emoji: null,
+  },
+  {
     id: 'romantic',
     name: 'Romantic getaway',
     description: 'Everything for a special occasion.',
@@ -42,13 +49,6 @@ const bundles = [
     description: "You're here for the city. Let's set you up.",
     serviceIds: ['cultural-tour', 'bike-hire', 'fnb-credit', 'welcome-amenity'],
     emoji: '🚲',
-  },
-  {
-    id: 'room-only',
-    name: 'Room only',
-    description: 'The Straits experience. Standard inclusions not included.',
-    serviceIds: [],
-    emoji: null,
   },
 ]
 
@@ -198,9 +198,6 @@ export default function Services() {
             </div>
           ))}
         </div>
-        <p style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginTop: 10 }}>
-          Not included in the Room only option.
-        </p>
       </div>
 
       {/* Bundle cards */}
@@ -311,7 +308,7 @@ export default function Services() {
                   </div>
                   {saving > 0 && (
                     <div style={{ fontSize: 12, color: 'var(--color-positive)', fontWeight: 500, marginTop: 2 }}>
-                      Save SGD {saving}
+                      Save SGD {saving} vs. booking à la carte
                     </div>
                   )}
                 </div>
