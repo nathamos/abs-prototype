@@ -85,77 +85,77 @@ body {
 ```jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
-// Flow A
-import FlowAIndex from './flows/flow-a/FlowAIndex'
-import FlowARooms from './flows/flow-a/Rooms'
-import FlowAServices from './flows/flow-a/Services'
+import FlowAIndex        from './flows/flow-a/FlowAIndex'
+import FlowARooms        from './flows/flow-a/Rooms'
+import FlowAServices     from './flows/flow-a/Services'
 import FlowAConfirmation from './flows/flow-a/Confirmation'
 
-// Flow B
-import FlowBIndex from './flows/flow-b/FlowBIndex'
-import FlowBRooms from './flows/flow-b/Rooms'
-import FlowBServices from './flows/flow-b/Services'
+import FlowBIndex        from './flows/flow-b/FlowBIndex'
+import FlowBRooms        from './flows/flow-b/Rooms'
+import FlowBServices     from './flows/flow-b/Services'
 import FlowBConfirmation from './flows/flow-b/Confirmation'
 
-// Flow C
-import FlowCIndex from './flows/flow-c/FlowCIndex'
-import FlowCRooms from './flows/flow-c/Rooms'
-import FlowCServices from './flows/flow-c/Services'
+import FlowCIndex        from './flows/flow-c/FlowCIndex'
+import FlowCRooms        from './flows/flow-c/Rooms'
+import FlowCServices     from './flows/flow-c/Services'
 import FlowCConfirmation from './flows/flow-c/Confirmation'
 
-// Flow D
-import FlowDIndex from './flows/flow-d/FlowDIndex'
-import FlowDChat from './flows/flow-d/Chat'
-import FlowDRecommendation from './flows/flow-d/Recommendation'
-import FlowDConfirmation from './flows/flow-d/Confirmation'
+import FlowDIndex from './flows/flow-d/FlowDIndex'  // AI Chat Canvas — self-contained
 
-// Home
-import Home from './Home'
+import FlowEIndex        from './flows/flow-e/FlowEIndex'
+import FlowERooms        from './flows/flow-e/Rooms'
+import FlowEItinerary    from './flows/flow-e/Itinerary'
+import FlowEConfirmation from './flows/flow-e/Confirmation'
+
+import Home           from './Home'
+import HotelSelection from './HotelSelection'
+import Complete       from './Complete'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/"        element={<HotelSelection />} />
+        <Route path="/home"    element={<Home />} />
+        <Route path="/complete" element={<Complete />} />
 
-        {/* Flow A */}
         <Route path="/flow-a" element={<FlowAIndex />}>
           <Route index element={<Navigate to="rooms" replace />} />
-          <Route path="rooms" element={<FlowARooms />} />
-          <Route path="services" element={<FlowAServices />} />
+          <Route path="rooms"        element={<FlowARooms />} />
+          <Route path="services"     element={<FlowAServices />} />
           <Route path="confirmation" element={<FlowAConfirmation />} />
         </Route>
 
-        {/* Flow B — unpriced */}
         <Route path="/flow-b" element={<FlowBIndex priced={false} />}>
           <Route index element={<Navigate to="rooms" replace />} />
-          <Route path="rooms" element={<FlowBRooms priced={false} />} />
-          <Route path="services" element={<FlowBServices />} />
+          <Route path="rooms"        element={<FlowBRooms priced={false} />} />
+          <Route path="services"     element={<FlowBServices />} />
           <Route path="confirmation" element={<FlowBConfirmation />} />
         </Route>
 
-        {/* Flow B — priced variant */}
         <Route path="/flow-b-priced" element={<FlowBIndex priced={true} />}>
           <Route index element={<Navigate to="rooms" replace />} />
-          <Route path="rooms" element={<FlowBRooms priced={true} />} />
-          <Route path="services" element={<FlowBServices />} />
+          <Route path="rooms"        element={<FlowBRooms priced={true} />} />
+          <Route path="services"     element={<FlowBServices />} />
           <Route path="confirmation" element={<FlowBConfirmation />} />
         </Route>
 
-        {/* Flow C */}
         <Route path="/flow-c" element={<FlowCIndex />}>
           <Route index element={<Navigate to="rooms" replace />} />
-          <Route path="rooms" element={<FlowCRooms />} />
-          <Route path="services" element={<FlowCServices />} />
+          <Route path="rooms"        element={<FlowCRooms />} />
+          <Route path="services"     from './flows/flow-c/Services' />
           <Route path="confirmation" element={<FlowCConfirmation />} />
         </Route>
 
-        {/* Flow D */}
-        <Route path="/flow-d" element={<FlowDIndex />}>
-          <Route index element={<Navigate to="chat" replace />} />
-          <Route path="chat" element={<FlowDChat />} />
-          <Route path="recommendation" element={<FlowDRecommendation />} />
-          <Route path="confirmation" element={<FlowDConfirmation />} />
+        {/* Flow D = AI Chat Canvas (shown as "Flow E" in menu) — no sub-routes */}
+        <Route path="/flow-d" element={<FlowDIndex />} />
+
+        {/* Flow E = Tier Comparison + Itinerary (shown as "Flow D" in menu) */}
+        <Route path="/flow-e" element={<FlowEIndex />}>
+          <Route index element={<Navigate to="rooms" replace />} />
+          <Route path="rooms"        element={<FlowERooms />} />
+          <Route path="itinerary"    element={<FlowEItinerary />} />
+          <Route path="confirmation" element={<FlowEConfirmation />} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -163,24 +163,24 @@ export default function App() {
 }
 ```
 
-Note: Flow B priced variant lives at `/flow-b-priced` so both variants can be accessed independently in research sessions.
+Note: Flow B priced variant lives at `/flow-b-priced` so both variants can be accessed independently. Flow D has no sub-routes — it is a single self-contained screen.
 
 ---
 
 ## Home.jsx — Research Index Page
 
-A simple landing page at `/` listing all flows with a brief description. Used by the researcher to navigate between flows during sessions. Not shown to participants directly.
+Lives at `/home`. Used by the researcher to navigate between flows. Not shown to participants (they enter at `/`).
 
-```jsx
-// Simple list of links:
-// / → Flow A: Filter & Narrow
-// /flow-b → Flow B: Build Your Room (unpriced)
-// /flow-b-priced → Flow B: Build Your Room (priced)
-// /flow-c → Flow C: Room First
-// /flow-d → Flow D: Conversational
+Shows bare flow labels only — no descriptions. Menu order and labels intentionally differ from routes:
+
 ```
-
-Style it simply — white card, the flow name as a link, one-line description. No need for anything elaborate.
+Flow A  → /flow-a
+Flow B  → /flow-b
+Flow B (priced) → /flow-b-priced
+Flow C  → /flow-c
+Flow D  → /flow-e   ← Tier Comparison (route is /flow-e)
+Flow E  → /flow-d   ← AI Chat Canvas (route is /flow-d)
+```
 
 ---
 

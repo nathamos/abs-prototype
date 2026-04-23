@@ -27,7 +27,7 @@ In this order:
 Then skim at least one complete existing flow to understand the patterns:
 
 - **Flow C** (`src/flows/flow-c/`) — good all-rounder; rooms, services, confirmation
-- **Flow E** (`src/flows/flow-e/`) — most recent; shows the hub + sub-screen pattern and day×time itinerary structure
+- **Flow E** (`src/flows/flow-e/`) — most recent linear flow; shows the comparison table and day×time itinerary structure
 
 ---
 
@@ -59,11 +59,12 @@ src/flows/flow-x/
 **State shape example** (adapt as needed):
 ```js
 const [selectedRoom, setSelectedRoom] = useState(null)
-const [roomAttrs, setRoomAttrs] = useState({})
 const [myServices, setMyServices] = useState([])
 ```
 
 The context object always includes a `setters` sub-object and `bookingContext`.
+
+**Note:** Not all flows follow this pattern. Flow D (`/flow-d`) is entirely self-contained in a single component and doesn't use FlowDIndex/Outlet context at all. Use that approach for flows that are one continuous screen rather than discrete steps.
 
 ---
 
@@ -119,8 +120,8 @@ The project uses **Framer Motion**. Patterns used across existing flows:
 | A | `/flow-a` | Filter & Narrow — dropdown filters, ranked room list, sort pills, SGD↔Points toggle |
 | B | `/flow-b` (unpriced), `/flow-b-priced` | Build Your Room — attribute-first, split-screen live preview, weighted room matching |
 | C | `/flow-c` | Room First — pick a room, in-card personalisation, bundle selector |
-| D | `/flow-d` | Conversational — 5-question chat, decision tree, curated recommendation |
-| E | `/flow-e` | My Trip — trip-as-entity hub; room card + day×time itinerary builder with per-slot service picker |
+| D (menu) | `/flow-e` | Tier Comparison + Itinerary — 4-column airline-style room comparison table → day×time itinerary builder |
+| E (menu) | `/flow-d` | AI Chat Canvas — split-screen scripted freetext chat with inline attribute highlights + live booking panel |
 
 ---
 
