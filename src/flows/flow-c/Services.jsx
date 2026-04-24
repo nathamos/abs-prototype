@@ -6,11 +6,20 @@ import BookingSummary from '../../components/shared/BookingSummary'
 
 const allItems = serviceCategories.flatMap((c) => c.items)
 const standardItems = allItems.filter((i) => i.standardInclusion)
+const standardInclusionsPerNight = standardItems.reduce((sum, i) => sum + (i.price || 0), 0)
 
 const bundles = [
   {
+    id: 'minimal',
+    name: 'Minimal – Room Only',
+    description: 'Room access only. Standard inclusions (breakfast, housekeeping, gym) are not included.',
+    serviceIds: [],
+    emoji: null,
+    noInclusions: true,
+  },
+  {
     id: 'room-only',
-    name: 'Room only',
+    name: 'Basic Room',
     description: 'The Straits experience — daily breakfast, housekeeping, and gym access included.',
     serviceIds: [],
     emoji: null,
@@ -102,9 +111,12 @@ export default function Services() {
     navigate('/flow-c/confirmation')
   }
 
+  const minimalTotal = roomTotal - standardInclusionsPerNight * nights
+
   // Build BookingSummary selectedServices
   let summaryServices = []
-  if (selectedBundle && selectedBundle.id !== 'room-only') {
+  const isSimple = !selectedBundle || selectedBundle.id === 'room-only' || selectedBundle.id === 'minimal'
+  if (selectedBundle && !isSimple) {
     summaryServices = getBundleServices(selectedBundle).map((svc) => ({
       id: svc.id,
       name: svc.name,
@@ -113,9 +125,11 @@ export default function Services() {
   }
 
   const bundleServicesTotal = selectedBundle ? getBundleServicesTotal(selectedBundle) : 0
-  const savings = selectedBundle && selectedBundle.id !== 'room-only' ? getSavings(selectedBundle, roomTotal) : 0
+  const savings = !isSimple ? getSavings(selectedBundle, roomTotal) : 0
   const discountedServicesTotal = savings > 0 ? bundleServicesTotal - savings : bundleServicesTotal
-  const summaryTotal = roomTotal + (selectedBundle && selectedBundle.id !== 'room-only' ? discountedServicesTotal : 0)
+  const summaryTotal = selectedBundle?.id === 'minimal'
+    ? minimalTotal
+    : roomTotal + (!isSimple ? discountedServicesTotal : 0)
 
   const checkIn = new Date(bookingContext.checkIn)
   const checkOut = new Date(bookingContext.checkOut)
@@ -185,7 +199,7 @@ export default function Services() {
         }}
       >
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-teal)', marginBottom: 10 }}>
-          Included with every stay
+          Included in all rooms ex. Minimal
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {standardItems.map((item) => (
@@ -206,8 +220,10 @@ export default function Services() {
           const isSelected = selectedBundleId === bundle.id
           const services = getBundleServices(bundle)
           const bundleTotal = getBundleTotal(bundle, roomTotal)
-          const saving = bundle.id !== 'room-only' ? getSavings(bundle, roomTotal) : 0
+          const isBundleSimple = bundle.id === 'room-only' || bundle.id === 'minimal'
+          const saving = !isBundleSimple ? getSavings(bundle, roomTotal) : 0
           const discountedTotal = saving > 0 ? bundleTotal - saving : bundleTotal
+          const cardTotal = bundle.id === 'minimal' ? minimalTotal : roomTotal
 
           const selectBtnStyle = {
             fontSize: 13,
@@ -220,7 +236,7 @@ export default function Services() {
             cursor: 'pointer',
           }
 
-          if (bundle.id === 'room-only') {
+          if (isBundleSimple) {
             return (
               <motion.div
                 key={bundle.id}
@@ -244,7 +260,14 @@ export default function Services() {
                   <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{bundle.description}</div>
                 </div>
                 <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>SGD {roomTotal}</div>
+                  <div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>SGD {cardTotal}</div>
+                    {bundle.id === 'minimal' && (
+                      <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 2 }}>
+                        Save SGD {roomTotal - cardTotal} vs. Basic Room
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleSelectBundle(bundle.id) }}
                     style={selectBtnStyle}
